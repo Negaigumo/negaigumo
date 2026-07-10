@@ -1646,6 +1646,41 @@ export default function App(){
             ? GUARDIANS[country.guardian.z].voice
             : GUARDIAN_LINES[(country.guardian.bond || 0) % GUARDIAN_LINES.length]))
         : "";
+
+      /* --- 国が生まれる前：ミリィが迎えるホーム --- */
+      if(n === 0){
+        return (
+          <div style={{ ...cardStyle, textAlign:"center" }}>
+            <MillyPuppet size={180} style={{ margin:"6px auto 4px" }} />
+            <h2 style={{ fontFamily:F_HEAD, fontSize:19, color:"#5B6BA8", margin:"6px 0 4px" }}>
+              願いが10こ あつまったとき──
+            </h2>
+            <p style={{ fontFamily:F_HAND, fontSize:13.5, lineHeight:2, color:"#7A86B8", margin:"0 0 16px",
+              textWrap:"balance" }}>
+              空のどこかに、あなただけの国が生まれます。<br/>まずはミリィと、モヤモヤを願いに変えにいこう。
+            </p>
+            <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"center" }}>
+              {wishes.length >= 10 ? (
+                <button className="btnP" style={btnPrimary}
+                  onClick={() => { setOrderDone(false); setOrderResult(null); setScreen("order"); }}>
+                  ✨ 5次元オーダーの準備が、ととのっています
+                </button>
+              ) : (
+                <button className="btnP" style={btnPrimary} onClick={restart}>
+                  ⭐ ミリィと願いを見つけにいく
+                </button>
+              )}
+              {wishes.length > 0 && wishes.length < 10 && (
+                <p style={{ fontFamily:F_BODY, fontSize:11, color:"#8A96BC", margin:0 }}>
+                  あつめた願い {wishes.length} / 10
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      /* --- 国のホーム：町の絵は隠さず、守り神はその下に --- */
       return (
         <div>
           <div>
@@ -1664,28 +1699,6 @@ export default function App(){
                 maskImage:"linear-gradient(180deg, transparent 0%, black 17%)" }}>
                 <TownScene count={done} />
               </div>
-              {country.guardian && bubbleText && (
-                <div className="gBubble">
-                  <p style={{ fontFamily:F_HAND, fontSize:11, lineHeight:1.7, color:"#5B6BA8", margin:0 }}>
-                    {bubbleText}
-                  </p>
-                </div>
-              )}
-              {country.guardian && (
-                <div style={{ position:"absolute", left:"50%", bottom:"1.5%",
-                  transform:"translateX(-50%)", width:"32%", zIndex:2 }}>
-                  <GuardianAvatar g={country.guardian} size={"100%"} justBorn={guardianJustBorn} />
-                </div>
-              )}
-              {country.guardian && (
-                <button className="millyBtn" aria-label={`${GUARDIANS[country.guardian.z].name}に話しかける`}
-                  onClick={() => setTalkOpen(v => !v)}
-                  style={{ position:"absolute", right:10, bottom:64, zIndex:3,
-                    outline: talkOpen ? "2.5px solid #B9A8E8" : "none" }}>
-                  <img src={GUARDIANS[country.guardian.z].img} alt=""
-                    style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"50% 8%", borderRadius:"50%" }} />
-                </button>
-              )}
               <button className="millyBtn" aria-label="ミリィにお願いする"
                 onClick={() => { setGuardianJustBorn(false);
                   if(wishes.length >= 10){ setOrderDone(false); setOrderResult(null); setScreen("order"); }
@@ -1699,11 +1712,26 @@ export default function App(){
                 )}
               </button>
             </div>
-            {country.guardian && talkOpen && (
-              <div style={{ ...cardStyle, padding:"14px 16px", marginTop:12, animation:"fadeUp .3s both ease-out" }}>
-                <div style={{ display:"flex", gap:8 }}>
+
+            {country.guardian ? (
+              <div style={{ marginTop:14 }}>
+                <div style={{ display:"flex", alignItems:"flex-end", gap:12 }}>
+                  <div style={{ width:118, flexShrink:0 }}>
+                    <GuardianAvatar g={country.guardian} size={"100%"} justBorn={guardianJustBorn} />
+                  </div>
+                  <div style={{ flex:1, minWidth:0, background:"rgba(255,255,255,.9)",
+                    borderRadius:"18px 18px 18px 4px", padding:"11px 14px", marginBottom:14,
+                    boxShadow:"0 6px 16px rgba(150,170,220,.22)", animation:"fadeUp .4s both ease-out" }}>
+                    <p style={{ fontFamily:F_HEAD, fontSize:11, color:"#A9B4D6", margin:"0 0 3px" }}>
+                      {guardianJustBorn ? "守り神が、うまれました ✦ " : ""}{GUARDIANS[country.guardian.z].name}
+                    </p>
+                    <p style={{ fontFamily:F_HAND, fontSize:12.5, lineHeight:1.8, color:"#5B6BA8", margin:0 }}>
+                      {bubbleText}
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display:"flex", gap:8, marginTop:8 }}>
                   <input
-                    autoFocus
                     value={gInput}
                     onChange={e => setGInput(e.target.value)}
                     onKeyDown={e => { if(e.key === "Enter") talkToGuardian(); }}
@@ -1744,8 +1772,7 @@ export default function App(){
                   </div>
                 )}
               </div>
-            )}
-            {!country.guardian && (
+            ) : (
               <div style={{ ...cardStyle, marginTop:12, padding:"14px", textAlign:"center" }}>
                 <p style={{ fontFamily:F_HAND, fontSize:12.5, lineHeight:1.9, color:"#8A96BC", margin:"0 0 8px" }}>
                   あなたの誕生日から、この国にただ一人の「守り神」をむかえられます
@@ -1768,8 +1795,9 @@ export default function App(){
                 <button className="btnG" style={btnGhost} onClick={inviteGuardian}>✨ 守り神をむかえる</button>
               </div>
             )}
+
             <p style={{ fontFamily:F_HAND, fontSize:11.5, lineHeight:1.9, color:"#A9B4D6",
-              textAlign:"center", margin:"12px 0 0" }}>
+              textAlign:"center", margin:"14px 0 0" }}>
               {done < LANDMARKS.length
                 ? `つぎの5次元オーダーで、灰色の「${LANDMARKS[done].name}」が彩られます`
                 : "👑 国はすべて彩られました"}
@@ -1796,7 +1824,7 @@ export default function App(){
             <p style={{ fontFamily:F_BODY, fontSize:10.5, color:"#A9B4D6", textAlign:"center", margin:"10px 0 0" }}>
               {wishes.length >= 10
                 ? "✨ 右下のミリィから、5次元オーダーへ"
-                : (wishes.length > 0 ? `あつめた願い ${wishes.length} / 10 ─ 右下のミリィにお願いしにいこう` : "右下のミリィをタップして、願いを見つけにいこう")}
+                : (wishes.length > 0 ? `あつめた願い ${wishes.length} / 10 ─ ミリィにお願いしにいこう` : "ミリィをタップして、つぎの願いを見つけにいこう")}
             </p>
           </div>
         </div>
