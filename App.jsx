@@ -27,7 +27,7 @@ const M_WING_R = IMG_WR;        // パペット用・右羽レイヤー
 const M_BODY   = IMG_BODY;      // パペット用・体レイヤー
 const M_HALO   = IMG_HALO;      // パペット用・輪っかレイヤー
 const MILLY_WINK = IMG_WINK;     // ウインク（願いが見つかった時）
-const MILLY_SPARKLE = IMG_SPARKLE; // 目がキラキラ（5次元オーダー専用）
+const MILLY_SPARKLE = IMG_SPARKLE; // 目がキラキラ（おおきな願いの儀式専用）
 
 /* ---------- storage (localStorage + memory fallback) ---------- */
 const MEM = {};
@@ -630,17 +630,15 @@ function GuardianAvatar({ g, size, justBorn }){
             WebkitMaskSize:"100% 100%", maskSize:"100% 100%",
             WebkitMaskRepeat:"no-repeat", maskRepeat:"no-repeat",
             background:`radial-gradient(circle at 50% 58%, ${coat} 0%, ${coat}88 45%, transparent 78%)`,
-            mixBlendMode:"color", opacity:.42, pointerEvents:"none" }} />
+            mixBlendMode:"color", opacity:.3, pointerEvents:"none" }} />
         )}
         {paw && (
-          <div aria-hidden="true" style={{ position:"absolute", inset:0,
-            WebkitMaskImage:`url("${img}")`, maskImage:`url("${img}")`,
-            WebkitMaskSize:"100% 100%", maskSize:"100% 100%",
-            WebkitMaskRepeat:"no-repeat", maskRepeat:"no-repeat",
-            background:`linear-gradient(180deg, transparent 82%, ${paw}cc 94%),
-                        radial-gradient(circle at 12% 62%, ${paw}aa 0%, transparent 11%),
-                        radial-gradient(circle at 88% 62%, ${paw}aa 0%, transparent 11%)`,
-            mixBlendMode:"color", opacity:.85, pointerEvents:"none" }} />
+          <>
+            <span aria-hidden="true" className="twinkle" style={{ left:"-4%", top:"30%",
+              color:paw, textShadow:`0 0 8px ${paw}`, fontSize:12 }}>✦</span>
+            <span aria-hidden="true" className="twinkle" style={{ right:"-4%", top:"55%",
+              color:paw, textShadow:`0 0 8px ${paw}`, animationDelay:"1.4s", fontSize:11 }}>✦</span>
+          </>
         )}
       </div>
       <div className="hoverShadow" aria-hidden="true" style={{ animation:"none", opacity:.5, marginTop:2 }} />
@@ -893,11 +891,15 @@ export default function App(){
       store.del("negaigumo_key");
       setApiKey(""); setOnline(false);
     }
-    setNotice(""); setScreen("kingdom");
+    setNotice("");
+    if(!store.get("negaigumo_seen_help")){ store.set("negaigumo_seen_help", "1"); setScreen("help"); }
+    else setScreen("kingdom");
   }
   function startOffline(){
     store.del("negaigumo_key");
-    setApiKey(""); setOnline(false); setNotice(""); setScreen("kingdom");
+    setApiKey(""); setOnline(false); setNotice("");
+    if(!store.get("negaigumo_seen_help")){ store.set("negaigumo_seen_help", "1"); setScreen("help"); }
+    else setScreen("kingdom");
   }
 
   async function askAI(sys, user, offlineFn){
@@ -1182,11 +1184,11 @@ export default function App(){
   function millyLine(n){
     if(n === 1) return "はじめての願い、みつけたね！ミリィが大切にあずかっておくよ";
     if(n === 5) return "5個目！願いの雲が、ふんわりふくらんできたよ";
-    if(n >= 10) return "10個そろったよ…！5次元オーダーの準備が、ととのったみたい";
+    if(n >= 10) return "10個そろったよ…！ひとつの、おおきな願いにたばねるときが きたみたい";
     return n + "個目の願い、たしかにあずかったよ！";
   }
 
-  const PHASE_MAP = { key:0, vent:0, list:2, step1:1, step2:2, step3:3, reveal:4, order:4, kingdom:4 };
+  const PHASE_MAP = { key:0, vent:0, list:2, step1:1, step2:2, step3:3, reveal:4, order:4, kingdom:4, help:0 };
   const phase = PHASE_MAP[screen] != null ? PHASE_MAP[screen] : 0;
 
   /* ---------------- render helpers ---------------- */
@@ -1203,6 +1205,7 @@ export default function App(){
         </span>
       </div>
       <div style={{ display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
+        <button className="btnG" style={{ ...btnGhost, whiteSpace:"nowrap" }} onClick={() => setScreen("help")}>？ あそびかた</button>
         <button className="btnG" style={{ ...btnGhost, whiteSpace:"nowrap" }} onClick={() => { setKeyInput(""); setScreen("key"); }}>鍵を変更</button>
         <button className="btnG" style={{ ...btnGhost, whiteSpace:"nowrap" }} onClick={() => { setSaved(false); setScreen("list"); }}>
           願い事リスト{wishes.length ? `（${wishes.length}）` : ""}
@@ -1466,7 +1469,7 @@ export default function App(){
           <div style={{ ...cardStyle }}>
             <h2 style={{ fontFamily:F_HEAD, fontSize:19, color:"#5B6BA8", margin:"0 0 4px" }}>願い事リスト</h2>
             <p style={{ fontFamily:F_BODY, fontSize:13, color:"#6E7A9E", margin:"0 0 12px" }}>
-              願いが10個そろうと「5次元オーダー」がひらきます。
+              願いが10個そろうと、ひとつの「おおきな願い」にたばねられます。
             </p>
             <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:16 }} aria-label={`願い ${n} / 10`}>
               {Array.from({length:10}).map((_, i) => (
@@ -1506,7 +1509,7 @@ export default function App(){
             <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"center", marginTop:20 }}>
               {unlocked && (
                 <button className="btnP" style={btnPrimary} onClick={() => { setOrderDone(false); setScreen("order"); }}>
-                  ✨ 5次元オーダーをひらく
+                  ✨ 10の願いを、ひとつにたばねる
                 </button>
               )}
               <button className="btnG" style={btnGhost} onClick={() => setScreen("kingdom")}>
@@ -1539,10 +1542,10 @@ export default function App(){
           </div>
           <h2 style={{ fontFamily:F_HEAD, fontSize:20, margin:"0 0 6px",
             background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
-            5次元オーダー
+            おおきな願い
           </h2>
           <p style={{ fontFamily:F_HAND, fontSize:14, lineHeight:1.9, color:"#7A86B8", margin:"0 0 16px" }}>
-            みつけた10の願いを、ねがいぐもに乗せて──<br/>ミリィが空のむこうへ届けます。
+            10の願いのおくには、ひとつの おおきな願いが眠っています。<br/>ミリィと一緒に、たばねてみよう。
           </p>
           <div style={{ textAlign:"left" }}>
             {ten.map((w, i) => (
@@ -1558,7 +1561,7 @@ export default function App(){
           </div>
           {!orderDone ? (
             <div style={{ marginTop:20 }}>
-              <button className="btnP" style={btnPrimary} onClick={castOrder}>オーダーを唱える</button>
+              <button className="btnP" style={btnPrimary} onClick={castOrder}>ひとつに、たばねる</button>
             </div>
           ) : (
             <div style={{ marginTop:20 }}>
@@ -1577,15 +1580,16 @@ export default function App(){
               </p>
               <p style={{ fontFamily:F_HEAD, fontSize:15, lineHeight:1.9, margin:"0 0 8px",
                 background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
-                オーダー、完了。
+                おおきな願いが、そらに届きました。
               </p>
               <p style={{ fontFamily:F_HAND, fontSize:13.5, lineHeight:1.9, color:"#7A86B8", margin:"0 0 14px" }}>
-                手放された10の願いは、色になって──<br/>あなたの国の「{(LANDMARKS[Math.min(country.count, 9)] || LANDMARKS[9]).name}」を彩ります。
+                たばねた願いは、色になって──<br/>あなたの国の「{(LANDMARKS[Math.min(country.count, 9)] || LANDMARKS[9]).name}」を彩ります。
               </p>
               {!country.guardian && (
                 <div style={{ margin:"0 0 12px" }}>
-                  <p style={{ fontFamily:F_HAND, fontSize:12.5, lineHeight:1.9, color:"#8A96BC", margin:"0 0 6px" }}>
-                    あなたの誕生日から、この国にただ一人の<br/>「守り神」が生まれます（誕生日はこの端末にだけ保存）
+                  <p style={{ fontFamily:F_HAND, fontSize:12.5, lineHeight:1.9, color:"#8A96BC", margin:"0 0 6px",
+                    textWrap:"balance" }}>
+                    さいごに、あなたが生まれた日を教えて。<br/>──空が、あなたのための"何か"を準備しています✨<br/>（この端末にだけ保存されます）
                   </p>
                   <input
                     type="date"
@@ -1622,7 +1626,7 @@ export default function App(){
               )}
               <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"center" }}>
                 <button className="btnP" style={btnPrimary} onClick={growCountry}>
-                  {country.count === 0 ? "☁ この願いで、国をひらく" : "🎨 この願いの色で、国を彩る"}
+                  {country.count === 0 ? "☁ この願いを、そらへ放つ" : "🎨 この願いの色を、国へ届ける"}
                 </button>
                 <button className="btnG" style={btnGhost} onClick={() => setScreen("list")}>リストに戻る</button>
               </div>
@@ -1633,6 +1637,42 @@ export default function App(){
               <button className="btnG" style={btnGhost} onClick={() => setScreen("list")}>← リストに戻る</button>
             </div>
           )}
+        </div>
+      );
+    }
+
+    if(screen === "help"){
+      const steps = [
+        { icon:"💭", t:"モヤモヤを、ミリィに話す", d:"ミリィが3つのとびらで、モヤモヤの奥にある「ほんとうの願い」まで案内してくれます。" },
+        { icon:"🌟", t:"願いを、10こあつめる", d:"みつけた願いは「願い事リスト」にたまっていきます。" },
+        { icon:"🎀", t:"10の願いを、ひとつにたばねる", d:"10こそろったら、その奥にあるひとつの「おおきな願い」がすがたを現し、空へ放たれます。" },
+        { icon:"🎁", t:"はじめてのそのとき、空から──", d:"なにが起こるかは、ひみつ。あなたの生まれた日が、鍵になります。" },
+        { icon:"🎨", t:"灰色の国が、彩られていく", d:"おおきな願いを放つたび、あなたの国がひとつずつ色づきます。" },
+        { icon:"💞", t:"話しかけて、なかよくなる", d:"国に住むあの子は、話すほど絆が育ち、あなただけの言葉で応えてくれるようになります。" },
+      ];
+      return (
+        <div style={{ ...cardStyle }}>
+          <h2 style={{ fontFamily:F_HEAD, fontSize:19, color:"#5B6BA8", textAlign:"center", margin:"0 0 4px" }}>
+            ねがいぐもの あそびかた
+          </h2>
+          <p style={{ fontFamily:F_HAND, fontSize:12.5, lineHeight:1.9, color:"#7A86B8",
+            textAlign:"center", margin:"0 0 14px", textWrap:"balance" }}>
+            痛みの奥の願いを見つけて、あなただけの国を育てる旅です。
+          </p>
+          {steps.map((s, i) => (
+            <div key={i} style={{ display:"flex", gap:12, alignItems:"flex-start", padding:"10px 4px",
+              borderBottom: i < steps.length - 1 ? "1px dashed rgba(160,180,225,.35)" : "none",
+              animation:`fadeUp .4s ${i*0.08}s both ease-out` }}>
+              <span style={{ fontSize:22, flexShrink:0 }}>{s.icon}</span>
+              <div style={{ minWidth:0 }}>
+                <p style={{ fontFamily:F_HEAD, fontSize:13.5, color:"#5B6BA8", margin:"0 0 3px" }}>{i+1}. {s.t}</p>
+                <p style={{ fontFamily:F_BODY, fontSize:12, lineHeight:1.8, color:"#6E7A9E", margin:0 }}>{s.d}</p>
+              </div>
+            </div>
+          ))}
+          <div style={{ textAlign:"center", marginTop:16 }}>
+            <button className="btnP" style={btnPrimary} onClick={() => setScreen("kingdom")}>はじめる</button>
+          </div>
         </div>
       );
     }
@@ -1663,7 +1703,7 @@ export default function App(){
               {wishes.length >= 10 ? (
                 <button className="btnP" style={btnPrimary}
                   onClick={() => { setOrderDone(false); setOrderResult(null); setScreen("order"); }}>
-                  ✨ 5次元オーダーの準備が、ととのっています
+                  ✨ 願いをたばねるときが、きています
                 </button>
               ) : (
                 <button className="btnP" style={btnPrimary} onClick={restart}>
@@ -1690,7 +1730,8 @@ export default function App(){
                 backgroundClip:"text", color:"transparent", animation:"hueSlide 7s linear infinite" }}>
                 {country.name || "ねがいの国"}
               </span>
-              <span style={{ fontFamily:F_BODY, fontSize:11, color:"#8A96BC", marginLeft:8 }}>
+              <span style={{ fontFamily:F_BODY, fontSize:11, marginLeft:8,
+                color:"rgba(255,255,255,.9)", textShadow:"0 1px 8px rgba(90,80,160,.6)" }}>
                 彩り {done}/{LANDMARKS.length}{stars > 0 ? ` ＋⭐${stars}` : ""}
               </span>
             </div>
@@ -1699,17 +1740,20 @@ export default function App(){
                 maskImage:"linear-gradient(180deg, transparent 0%, black 17%)" }}>
                 <TownScene count={done} />
               </div>
-              <button className="millyBtn" aria-label="ミリィにお願いする"
+            </div>
+            <div style={{ textAlign:"center", marginTop:12 }}>
+              <button className="btnP" aria-label="ミリィにお願いする"
                 onClick={() => { setGuardianJustBorn(false);
                   if(wishes.length >= 10){ setOrderDone(false); setOrderResult(null); setScreen("order"); }
                   else restart(); }}
-                style={{ position:"absolute", right:10, bottom:10, zIndex:3 }}>
-                <img src={MILLY_STD} alt="" />
-                {wishes.length >= 10 && (
-                  <span aria-hidden="true" style={{ position:"absolute", top:-2, right:-2, width:14, height:14,
-                    borderRadius:"50%", background:RAINBOW,
-                    boxShadow:"0 0 8px rgba(255,200,150,.9)", animation:"twinkleAnim 1.6s ease-in-out infinite" }} />
-                )}
+                style={{ ...btnPrimary, display:"inline-flex", alignItems:"center", gap:10,
+                  padding:"8px 22px 8px 10px" }}>
+                <span style={{ width:40, height:40, borderRadius:"50%", flexShrink:0,
+                  background:"rgba(255,255,255,.9)", display:"inline-flex", alignItems:"center",
+                  justifyContent:"center", overflow:"hidden" }}>
+                  <img src={MILLY_STD} alt="" style={{ width:"82%", display:"block" }} />
+                </span>
+                {wishes.length >= 10 ? "✨ 願いを、ひとつにたばねる" : "⭐ ミリィにお願いする"}
               </button>
             </div>
 
@@ -1748,13 +1792,14 @@ export default function App(){
                   </button>
                 </div>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:6 }}>
-                  <span style={{ fontFamily:F_HAND, fontSize:10.5, color:"#B9A8D8" }}>
+                  <span style={{ fontFamily:F_HAND, fontSize:10.5, color:"rgba(255,255,255,.9)",
+                    textShadow:"0 1px 8px rgba(90,80,160,.55)" }}>
                     こころの絆 {"✦".repeat(Math.min(5, Math.floor((country.guardian.bond || 0) / 5)) + 1)}
                     <span style={{ color:"#D8CFEA" }}>{"✧".repeat(Math.max(0, 5 - Math.floor((country.guardian.bond || 0) / 5)))}</span>
                   </span>
                   {!rebirthAsk ? (
                     <button onClick={() => setRebirthAsk(true)}
-                      style={{ fontFamily:F_BODY, fontSize:9.5, color:"#C4CBDE", background:"none",
+                      style={{ fontFamily:F_BODY, fontSize:9.5, color:"rgba(255,255,255,.75)", background:"none",
                         border:"none", cursor:"pointer", textDecoration:"underline" }}>
                       🌙 生まれ直し
                     </button>
@@ -1796,16 +1841,18 @@ export default function App(){
               </div>
             )}
 
-            <p style={{ fontFamily:F_HAND, fontSize:11.5, lineHeight:1.9, color:"#A9B4D6",
-              textAlign:"center", margin:"14px 0 0" }}>
-              {done < LANDMARKS.length
-                ? `つぎの5次元オーダーで、灰色の「${LANDMARKS[done].name}」が彩られます`
-                : "👑 国はすべて彩られました"}
+            <p style={{ fontFamily:F_HAND, fontSize:12, lineHeight:1.9, textAlign:"center",
+              margin:"14px 8px 0", textWrap:"balance",
+              color:"rgba(255,255,255,.95)", textShadow:"0 1px 10px rgba(90,80,160,.65)" }}>
+              {done < LANDMARKS.length ? (
+                <>つぎのおおきな願いが、<br/>灰色の「{LANDMARKS[done].name}」を彩ります</>
+              ) : "👑 国はすべて彩られました"}
             </p>
             {done > 0 && (
               <details style={{ marginTop:8 }}>
-                <summary style={{ fontFamily:F_BODY, fontSize:11, color:"#8A96BC", cursor:"pointer",
-                  textAlign:"center", listStyle:"none" }}>✦ 彩られた場所と、こめられた願い</summary>
+                <summary style={{ fontFamily:F_BODY, fontSize:11, cursor:"pointer",
+                  textAlign:"center", listStyle:"none",
+                  color:"rgba(255,255,255,.9)", textShadow:"0 1px 8px rgba(90,80,160,.6)" }}>✦ 彩られた場所と、こめられた願い</summary>
                 <div style={{ marginTop:6 }}>
                   {LANDMARKS.slice(0, done).map((lm, i) => (
                     <div key={i} style={{ display:"flex", alignItems:"baseline", gap:8, padding:"6px 4px",
@@ -1821,10 +1868,12 @@ export default function App(){
                 </div>
               </details>
             )}
-            <p style={{ fontFamily:F_BODY, fontSize:10.5, color:"#A9B4D6", textAlign:"center", margin:"10px 0 0" }}>
+            <p style={{ fontFamily:F_BODY, fontSize:11, textAlign:"center", margin:"10px 8px 0",
+              textWrap:"balance", color:"rgba(255,255,255,.92)",
+              textShadow:"0 1px 8px rgba(90,80,160,.6)" }}>
               {wishes.length >= 10
-                ? "✨ 右下のミリィから、5次元オーダーへ"
-                : (wishes.length > 0 ? `あつめた願い ${wishes.length} / 10 ─ ミリィにお願いしにいこう` : "ミリィをタップして、つぎの願いを見つけにいこう")}
+                ? "✨ ミリィのところで、願いをたばねよう"
+                : (wishes.length > 0 ? `あつめた願い ${wishes.length} / 10` : "ミリィをタップして、願いを見つけにいこう")}
             </p>
           </div>
         </div>
@@ -1895,10 +1944,7 @@ export default function App(){
         @keyframes islandFloat { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-7px) } }
         @keyframes gBlinkAnim { 0%, 93%, 96.5%, 100% { opacity:0 } 93.8%, 95.7% { opacity:1 } }
         .gBlink { opacity:0; animation:gBlinkAnim 4.6s ease-in-out infinite; }
-        @keyframes gIdle { 0%{ transform:scale(1,1) } 38%{ transform:scale(1.012,.988) }
-          72%{ transform:scale(1,1) } 86%{ transform:scale(1,1) }
-          89%{ transform:scale(1.02,1.05) } 92%{ transform:scale(1.008,.982) }
-          95%{ transform:scale(1,1) } 100%{ transform:scale(1,1) } }
+        @keyframes gIdle { 0%,100%{ transform:scale(1,1) } 50%{ transform:scale(1.012,.988) } }
         .uncol { filter:grayscale(1) brightness(1.05); opacity:.32; transition:filter 1.4s ease, opacity 1.4s ease; }
         .col { filter:none; opacity:1; transition:filter 1.4s ease, opacity 1.4s ease; }
         @keyframes bloomIn { from{ opacity:0 } to{ opacity:1 } }
