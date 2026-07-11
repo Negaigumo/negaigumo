@@ -995,6 +995,21 @@ export default function App(){
     if(demoTaps.current >= 5){ demoTaps.current = 0; setDemoMode(v => !v); }
   }
 
+  function wipeAllData(){
+    const ok = window.confirm("すべてのデータ（願い・国・お迎えした精霊・APIキー・あそびかた既読）を消して、はじめての状態にもどします。よろしいですか？");
+    if(!ok) return;
+    try {
+      const keys = [];
+      for(let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(k && k.indexOf("negaigumo") === 0) keys.push(k);
+      }
+      keys.forEach(k => localStorage.removeItem(k));
+    } catch(e){}
+    try { Object.keys(MEM).forEach(k => { if(k.indexOf("negaigumo") === 0) delete MEM[k]; }); } catch(e){}
+    try { window.location.reload(); } catch(e){}
+  }
+
   function fillDemoWishes(){
     const samples = [
       { neg:"どれだけ頑張っても認めてもらえないのではと、悔しさがこみ上げた", vow:"自分の頑張りを自分で誇る", emo:"自分を誇れる充実感" },
@@ -2034,6 +2049,16 @@ export default function App(){
           color: phase >= 3 ? "rgba(255,255,255,.8)" : "#AEB9D8", cursor:"default", userSelect:"none" }}>
           ねがいぐも — 痛みの奥の、ほんとうの願いへ 🐬{demoMode ? " 🧪" : ""}
         </p>
+        {demoMode && (
+          <div style={{ textAlign:"center", marginTop:8, marginBottom:12 }}>
+            <button className="btnG" onClick={wipeAllData}
+              style={{ fontFamily:F_BODY, fontSize:11, color:"#D88BA8",
+                background:"rgba(255,255,255,.55)", border:"1.5px solid #F2D3E0",
+                borderRadius:999, padding:"8px 16px", cursor:"pointer" }}>
+              🧪 最初から体験（データ全消去）
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
