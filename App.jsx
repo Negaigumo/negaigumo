@@ -1562,13 +1562,34 @@ export default function App(){
                 animationDelay: (i*0.06) + "s" }}>✦</span>
             ))}
           </div>
-          <h2 style={{ fontFamily:F_HEAD, fontSize:20, margin:"0 0 6px",
-            background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
-            おおきな願い
-          </h2>
-          <p style={{ fontFamily:F_HAND, fontSize:14, lineHeight:1.9, color:"#7A86B8", margin:"0 0 16px" }}>
-            10の願いのおくには、ひとつの おおきな願いが眠っています。<br/>ミリィと一緒に、たばねてみよう。
-          </p>
+          {!orderDone ? (
+            <>
+              <h2 style={{ fontFamily:F_HEAD, fontSize:20, margin:"0 0 6px",
+                background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
+                おおきな願い
+              </h2>
+              <p style={{ fontFamily:F_HAND, fontSize:14, lineHeight:1.9, color:"#7A86B8", margin:"0 0 16px" }}>
+                10の願いのおくには、ひとつの おおきな願いが眠っています。<br/>ミリィと一緒に、たばねてみよう。
+              </p>
+            </>
+          ) : (
+            <>
+              <p style={{ fontFamily:F_HAND, fontSize:12.5, color:"#8A96BC", margin:"0 0 6px" }}>
+                10の願いが束ねられて、ひとつの おおきな願いがあらわれました──
+              </p>
+              <h2 style={{ fontFamily:F_HEAD, lineHeight:1.6, margin:"0 0 8px", padding:"0 4px",
+                fontSize:"clamp(20px, 5.5vw, 30px)", textWrap:"balance",
+                animation:"revealGlow 1.1s .2s both",
+                background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
+                {orderResult ? orderResult.essence : ""}
+              </h2>
+              <p style={{ fontFamily:F_HAND, fontSize:14.5, lineHeight:2, color:"#5B6BA8", margin:"0 0 14px",
+                textWrap:"balance" }}>
+                {orderResult ? orderResult.order : ""}
+              </p>
+            </>
+          )}
+          {!orderDone && (
           <div style={{ textAlign:"left" }}>
             {ten.map((w, i) => (
               <div key={w.id} style={{ background:"linear-gradient(120deg,#F4F9FF,#FFF3F8)",
@@ -1581,25 +1602,13 @@ export default function App(){
               </div>
             ))}
           </div>
+          )}
           {!orderDone ? (
             <div style={{ marginTop:20 }}>
               <button className="btnP" style={btnPrimary} onClick={castOrder}>ひとつに、たばねる</button>
             </div>
           ) : (
             <div style={{ marginTop:20 }}>
-              <p style={{ fontFamily:F_HAND, fontSize:12.5, color:"#8A96BC", margin:"0 0 6px" }}>
-                10の願いが束ねられて、ひとつの核があらわれました──
-              </p>
-              <p style={{ fontFamily:F_HEAD, lineHeight:1.6, margin:"0 0 8px", padding:"0 4px",
-                fontSize:"clamp(20px, 5.5vw, 30px)", textWrap:"balance",
-                animation:"revealGlow 1.1s .2s both",
-                background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
-                {orderResult ? orderResult.essence : ""}
-              </p>
-              <p style={{ fontFamily:F_HAND, fontSize:14.5, lineHeight:2, color:"#5B6BA8", margin:"0 0 14px",
-                textWrap:"balance" }}>
-                {orderResult ? orderResult.order : ""}
-              </p>
               <p style={{ fontFamily:F_HEAD, fontSize:15, lineHeight:1.9, margin:"0 0 8px",
                 background:RAINBOW, WebkitBackgroundClip:"text", backgroundClip:"text", color:"transparent" }}>
                 おおきな願いが、そらに届きました。
