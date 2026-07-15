@@ -837,6 +837,13 @@ function MoteLayer(){
 
 /* ==================================================================== */
 export default function App(){
+  /* iOSの自動ズーム対策: viewportにmaximum-scaleを付与(ピンチ操作はiOSでは引き続き可能) */
+  useEffect(() => {
+    try {
+      const m = document.querySelector('meta[name="viewport"]');
+      if(m) m.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");
+    } catch(e){}
+  }, []);
   const [screen, setScreen] = useState("key");   // key|vent|step1|step2|step3|reveal|order|list
   const [apiKey, setApiKey] = useState("");
   const [keyInput, setKeyInput] = useState("");
@@ -1901,6 +1908,8 @@ export default function App(){
   return (
     <div ref={topRef} style={{ minHeight:"100vh", background:"transparent", padding:"0 16px 48px" }}>
       <style>{`
+        /* iOS Safari: 16px未満の入力欄はフォーカス時に自動ズームされるため16pxを強制 */
+        input, textarea, select { font-size: 16px !important; }
         @keyframes floaty { 0%,100%{ transform:translateY(0) rotate(-1.6deg) } 50%{ transform:translateY(-9px) rotate(1.6deg) } }
         @keyframes bounceDot { 0%,100%{ transform:translateY(0); opacity:.5 } 50%{ transform:translateY(-7px); opacity:1 } }
         @keyframes fadeUp { from{ opacity:0; transform:translateY(10px) } to{ opacity:1; transform:translateY(0) } }
